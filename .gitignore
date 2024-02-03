@@ -1,0 +1,14 @@
+# Ignorar archivos de caché
+.cache
+.cache-santiagofada
+
+
+
+.env
+*.pyc
+*.pyo
+*.pyd
+
+
+# Carpeta .idea de PyCharm
+.idea/
