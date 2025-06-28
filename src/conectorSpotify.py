@@ -469,7 +469,6 @@ class ConectorSpotify():
 
         return missing_track_info
     def __check_saved_vs_playlist(self, playlist_name):
-
         saved_tracks = self.__find_user_liked_songs()
         playlist_tracks = self.__canciones_playlist(playlist_name)
 
@@ -507,3 +506,36 @@ class ConectorSpotify():
         for i,cancion in enumerate(canciones):
             print(f"{i+1}){cancion['name']}")
 
+    def create_liked_songs_playlist(self, playlist_name="Canciones Guardadas",
+                                    descripcion="Playlist generada con canciones guardadas"):
+        """
+        Crea una playlist nueva con todas las canciones guardadas (me gusta) del usuario.
+
+        Parameters:
+        - playlist_name (str): Nombre de la nueva playlist.
+        - descripcion (str): Descripción de la playlist.
+
+        Returns:
+        - None
+        """
+        print("Obteniendo canciones guardadas...")
+        saved_tracks = self.__find_user_liked_songs(full=True)
+
+        # Extraer los IDs de las canciones
+        ids = [track['track']['id'] for track in saved_tracks if track['track'] is not None]
+
+        if not ids:
+            print("No habia canciones guardadas.")
+            return
+
+        print(f"{len(ids)} canciones encontradas. Creando playlist...")
+
+        # Crear nueva playlist
+        playlist = self.__spotipy_client.user_playlist_create(user=self.__username, name=playlist_name,
+                                                              description=descripcion)
+
+        # Agregar en lotes de 100
+        for i in range(0, len(ids), 100):
+            self.__spotipy_client.playlist_add_items(playlist_id=playlist['id'], items=ids[i:i + 100])
+
+        print("Playlist creada con éxito.")
